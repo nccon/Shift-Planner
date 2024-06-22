@@ -1,0 +1,40 @@
+<!-- templates/manage_requests.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Shift Change Requests</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Requester</th>
+                <th>Target User</th>
+                <th>Shift</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.requesting_user.username }}</td>
+                <td>{{ request.targeted_user.username }}</td>
+                <td>{{ request.shift.shift_type }} ({{ request.shift.start_date }} to {{ request.shift.end_date }})</td>
+                <td>{{ request.status }}</td>
+                <td>
+                    {% if request.status == 'Pending' %}
+                    <form method="post" action="{{ url_for('manage_requests') }}">
+                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                        <button type="submit" name="action" value="deny" class="btn btn-danger btn-sm">Deny</button>
+                    </form>
+                    {% else %}
+                    {{ request.status }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

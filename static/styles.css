@@ -1,0 +1,61 @@
+body {
+    padding-top: 20px;
+    background-color: #e6f7ff; /* Very light blue background */
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the body takes at least the full viewport height */
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.navbar {
+    background-color: #005f99; /* Darker blue for navbar */
+}
+
+.navbar .nav-link {
+    color: white !important;
+    margin-right: 15px; /* Add spacing between links */
+    padding: 10px; /* Increase clickable area */
+}
+
+.navbar .navbar-brand {
+    color: white !important;
+}
+
+.navbar .nav-item .nav-link:hover {
+    color: #ffcc00 !important; /* Optional: Change link color on hover */
+}
+
+.navbar .nav-item .nav-link.active {
+    color: #ffcc00 !important; /* Optional: Change color of active link */
+}
+
+.container {
+    margin-top: 20px;
+    background-color: white; /* White background for the content container */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Allows the container to expand and fill available space */
+}
+
+.event-text-black {
+    color: black !important;
+    
+}
+
+.fc .fc-bg-event .fc-event-title{
+    color: black !important;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    background-color: #005f99; /* Match navbar color */
+    color: white;
+    width: 100%;
+}

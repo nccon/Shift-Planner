@@ -1,0 +1,20 @@
+<!-- templates/request_shift_change.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Request Shift Change</h2>
+    <form method="POST" action="{{ url_for('request_shift_change') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.shift_id.label(class="form-label") }}
+            {{ form.shift_id(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.target_user_id.label(class="form-label") }}
+            {{ form.target_user_id(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Request Shift Change</button>
+    </form>
+</div>
+{% endblock %}

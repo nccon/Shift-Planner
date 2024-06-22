@@ -1,0 +1,67 @@
+<!-- templates/my_shifts.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Shifts</h2>
+    <ul>
+        {% for shift in shifts %}
+        <li>{{ shift.shift_type }} from {{ shift.start_date }} to {{ shift.end_date }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Request Shift Change</h2>
+    <form id="shift-change-form" method="post" action="{{ url_for('request_shift_change') }}">
+        {{ change_form.hidden_tag() }}
+        <div class="form-group">
+            {{ change_form.shift_id.label(class="form-label") }}
+            {{ change_form.shift_id(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ change_form.target_user_id.label(class="form-label") }}
+            {{ change_form.target_user_id(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Request Shift Change</button>
+    </form>
+    <div id="form-message" style="margin-top: 10px;"></div>
+
+    <h2>Shift Change Requests</h2>
+    <ul>
+        {% for request in requests %}
+        <li>{{ request.shift.shift_type }} ({{ request.shift.start_date }} to {{ request.shift.end_date }}) - Status: {{ request.status }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Approved Requests</h3>
+    <ul>
+        {% for request in approved_requests %}
+        <li>{{ request.shift.shift_type }} ({{ request.shift.start_date }} to {{ request.shift.end_date }}) - Status: {{ request.status }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Denied Requests</h3>
+    <ul>
+        {% for request in denied_requests %}
+        <li>{{ request.shift.shift_type }} ({{ request.shift.start_date }} to {{ request.shift.end_date }}) - Status: {{ request.status }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#shift-change-form').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for("request_shift_change") }}',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#form-message').html('<div class="alert alert-success">Shift change request sent successfully!</div>');
+            },
+            error: function(response) {
+                $('#form-message').html('<div class="alert alert-danger">An error occurred while sending the request.</div>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

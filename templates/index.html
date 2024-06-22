@@ -1,0 +1,36 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if current_user.is_authenticated %}
+        <h2>Welcome, {{ current_user.username }}</h2>
+        <p>Go to <a href="{{ url_for('my_shifts') }}">My Shifts</a> to request a shift change.</p>
+    {% endif %}
+    <div id="calendar" style="max-width: 800px; height: 500px; font-size: 0.8em;"></div>
+    <pre id="events-data" style="display: none;">{{ events | tojson }}</pre>
+</div>
+
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var events = JSON.parse(document.getElementById('events-data').textContent);
+     events = events.map(event => {
+        if (event.display === 'background') {
+            event.classNames = ['event-text-black'];
+        }
+        return event;
+    });
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        firstDay: 1,  // Set Monday as the first day of the week
+        events: events
+    });
+    calendar.render();
+});
+</script>
+
+{% endblock %}

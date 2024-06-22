@@ -1,0 +1,195 @@
+<!-- templates/manage.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Manage Shifts</h2>
+
+<form method="post">
+    {{ shift_form.hidden_tag() }}
+    <div class="form-group">
+        {{ shift_form.user_id.label(class="form-label") }}
+        {{ shift_form.user_id(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ shift_form.start_date.label(class="form-label") }}
+        {{ shift_form.start_date(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ shift_form.end_date.label(class="form-label") }}
+        {{ shift_form.end_date(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ shift_form.shift_type.label(class="form-label") }}
+        {{ shift_form.shift_type(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ shift_form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+<h2>Manage Bank Holidays</h2>
+
+<form method="post">
+    {{ holiday_form.hidden_tag() }}
+    <div class="form-group">
+        {{ holiday_form.name.label(class="form-label") }}
+        {{ holiday_form.name(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ holiday_form.date.label(class="form-label") }}
+        {{ holiday_form.date(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ holiday_form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+<h2>Existing Shifts</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Shift Type</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for shift in shifts %}
+        <tr>
+            <td>{{ shift.user.username }}</td>
+            <td>{{ shift.shift_type }}</td>
+            <td>{{ shift.start_date }}</td>
+            <td>{{ shift.end_date }}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="editShift('{{ shift.id }}', '{{ shift.user.id }}', '{{ shift.start_date }}', '{{ shift.end_date }}', '{{ shift.shift_type }}')">Edit</button>
+                <form action="{{ url_for('manage') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="shift_id" value="{{ shift.id }}">
+                    <button type="submit" name="delete_shift" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Export Button -->
+<button class="btn btn-primary" data-toggle="modal" data-target="#exportModal">Export Shifts</button>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportModalLabel">Export Shifts</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="exportForm" method="post" action="{{ url_for('export_shifts') }}">
+          <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="start_date" required>
+          </div>
+          <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="end_date" required>
+          </div>
+          <div class="form-group">
+            <label for="user">User</label>
+            <select class="form-control" id="user" name="user_id">
+              <option value="all">All Users</option>
+              {% for user in users %}
+              <option value="{{ user.id }}">{{ user.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exportType">Export Type</label>
+            <select class="form-control" id="exportType" name="export_type" required>
+              <option value="all_shifts">All Shifts</option>
+              <option value="weekends">Shifts per Weekend</option>
+              <option value="bank_holidays">Shifts per Bank Holiday</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Export</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Existing Bank Holidays</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Holiday Name</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for holiday in holidays %}
+        <tr>
+            <td>{{ holiday.name }}</td>
+            <td>{{ holiday.date }}</td>
+            <td>
+                <form action="{{ url_for('delete_holiday', holiday_id=holiday.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function editShift(shiftId, userId, startDate, endDate, shiftType) {
+        const userSelect = document.querySelector('[name="user_id"]');
+        const startDateInput = document.querySelector('[name="start_date"]');
+        const endDateInput = document.querySelector('[name="end_date"]');
+        const shiftTypeInput = document.querySelector('[name="shift_type"]');
+        
+        userSelect.value = userId;
+        startDateInput.value = startDate;
+        endDateInput.value = endDate;
+        shiftTypeInput.value = shiftType;
+        
+        const updateButton = document.createElement('button');
+        updateButton.textContent = 'Update Shift';
+        updateButton.classList.add('btn', 'btn-primary');
+        updateButton.onclick = function() {
+            fetch('{{ url_for("update_shift") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    shift_id: shiftId,
+                    user_id: userSelect.value,
+                    start_date: startDateInput.value,
+                    end_date: endDateInput.value,
+                    shift_type: shiftTypeInput.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Shift updated successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to update shift');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        };
+        
+        const form = document.querySelector('form');
+        form.appendChild(updateButton);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,142 @@
+<!-- templates/manage_users.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Manage Users</h2>
+
+<form method="post">
+    {{ user_form.hidden_tag() }}
+    <div class="form-group">
+        {{ user_form.username.label(class="form-label") }}
+        {{ user_form.username(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ user_form.password.label(class="form-label") }}
+        {{ user_form.password(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ user_form.phone.label(class="form-label") }}
+        {{ user_form.phone(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ user_form.email.label(class="form-label") }}
+        {{ user_form.email(class="form-control") }}
+    </div>
+    <div class="form-group form-check">
+        {{ user_form.is_admin(class="form-check-input") }}
+        {{ user_form.is_admin.label(class="form-check-label") }}
+    </div>
+    <div class="form-group">
+        {{ user_form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+<h2>Existing Users</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+            <td>
+                <form action="{{ url_for('manage_users') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" name="action" value="toggle_admin" class="btn btn-secondary btn-sm">Toggle Admin</button>
+                </form>
+                <form action="{{ url_for('manage_users') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="button" class="btn btn-warning btn-sm" onclick="showUpdatePhoneModal('{{ user.id }}', '{{ user.phone }}')">Update Phone</button>
+                </form>
+                <form action="{{ url_for('manage_users') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="showResetPasswordModal('{{ user.id }}')">Reset Password</button>
+                </form>
+                <form action="{{ url_for('manage_users') }}" method="post" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Update Phone Modal -->
+<div class="modal fade" id="updatePhoneModal" tabindex="-1" role="dialog" aria-labelledby="updatePhoneModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updatePhoneModalLabel">Update Phone Number</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="updatePhoneForm" method="post">
+            {{ user_form.hidden_tag() }}
+            <input type="hidden" id="updatePhoneUserId" name="user_id">
+            <div class="form-group">
+                <label for="newPhone">New Phone Number</label>
+                <input type="text" class="form-control" id="newPhone" name="new_phone" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Phone</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" role="dialog" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="resetPasswordForm" method="post">
+            {{ user_form.hidden_tag() }}
+            <input type="hidden" id="resetPasswordUserId" name="user_id">
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="new_password" required>
+            </div>
+            <div class="form-group">
+                <label for="repeatPassword">Repeat Password</label>
+                <input type="password" class="form-control" id="repeatPassword" name="repeat_password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Reset Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showUpdatePhoneModal(userId, currentPhone) {
+    document.getElementById('updatePhoneUserId').value = userId;
+    document.getElementById('newPhone').value = currentPhone;
+    $('#updatePhoneModal').modal('show');
+}
+
+function showResetPasswordModal(userId) {
+    document.getElementById('resetPasswordUserId').value = userId;
+    $('#resetPasswordModal').modal('show');
+}
+</script>
+
+{% endblock %}
